@@ -7,12 +7,15 @@ import (
 
 	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
 
+var rng *rand.Rand
+
 func doRequest(w http.ResponseWriter, r *http.Request) {
-	num := rand.Float64()
+	num := rng.Float64()
 
 	var threshold float64
 	var err error
@@ -29,14 +32,18 @@ func doRequest(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain;charset=UTF-8")
 		w.Write([]byte("The request was a success 😁"))
 		return
-	} else {
-		w.WriteHeader(500)
-		w.Header().Set("Content-Type", "text/plain;charset=UTF-8")
-		w.Write([]byte("There was an unexpected error 😭"))
 	}
+
+	w.WriteHeader(500)
+	w.Header().Set("Content-Type", "text/plain;charset=UTF-8")
+	w.Write([]byte("There was an unexpected error 😭"))
+	return
 }
 
 func main() {
+	source := rand.NewSource(time.Now().UnixNano())
+	rng = rand.New(source)
+
 	r := mux.NewRouter()
 	r.PathPrefix("/").HandlerFunc(doRequest)
 
