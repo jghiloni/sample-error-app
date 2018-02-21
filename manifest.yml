@@ -1,0 +1,8 @@
+---
+applications:
+- name: sample-error-app
+  path: .
+  memory: 32M
+  random-route: true
+  env:
+    GOPACKAGENAME: github.com/jghiloni/sample-error-app
