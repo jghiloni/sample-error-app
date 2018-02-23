@@ -26,9 +26,9 @@ func buildRequestHandler(rng *rand.Rand, minDelay int64, maxDelay int64) func(w 
 
 		fmt.Printf("The threshold is %v and the random number is %v\n", threshold, num)
 
-		delay := int64(0)
+		delay := minDelay
 		if maxDelay > 0 {
-			delay = rng.Int63n(maxDelay) + minDelay
+			delay += rng.Int63n(maxDelay - minDelay)
 		}
 
 		fmt.Printf("Adding a randomly selected %v ms delay\n", delay)
@@ -52,14 +52,14 @@ func main() {
 	source := rand.NewSource(time.Now().UnixNano())
 	rng := rand.New(source)
 
-	maxDelay, err := strconv.ParseInt(os.Getenv("MAX_DELAY_MS"), 10, 64)
-	if err != nil || maxDelay < 0 {
-		maxDelay = 0
-	}
-
 	minDelay, err := strconv.ParseInt(os.Getenv("MIN_DELAY_MS"), 10, 64)
 	if err != nil || minDelay < 0 {
 		minDelay = 0
+	}
+
+	maxDelay, err := strconv.ParseInt(os.Getenv("MAX_DELAY_MS"), 10, 64)
+	if err != nil || maxDelay < minDelay {
+		maxDelay = minDelay
 	}
 
 	r := mux.NewRouter()
